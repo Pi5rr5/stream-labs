@@ -1,4 +1,4 @@
-name := "akka-http"
+name := "stream-labs"
 
 version := "0.1"
 

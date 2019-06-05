@@ -25,8 +25,8 @@ object WebServer {
   implicit val keyFormat = jsonFormat1(Key)
   implicit val keysFormat = jsonFormat1(Keys)
 
-  // To run your application, use the following command : sbt "run path/to/the/correction/src/main/resources/test.db"
-  // Currently, test.db has only one table "table_test" with one column "key" (type integer)
+  // To run your application, use the following command : sbt "run path/to/the/correction/src/main/resources/stream-labs.db"
+  // Currently, stream-labs.db has only one table "table_test" with one column "key" (type integer)
   def main(args: Array[String]) {
 
     val url = s"""jdbc:sqlite:${args(0)}"""
