@@ -12,7 +12,9 @@ import utils.FromMap.to
 
 import scala.io.StdIn
 
-object WebServer {
+object WebServer extends App with UserRoutes {
+
+  lazy val routes: Route = userRoutes
 
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
@@ -22,14 +24,11 @@ object WebServer {
 
   case class Users(vec: Vector[User])
 
-  implicit val userFormat = jsonFormat4(User)
-  implicit val usersFormat = jsonFormat1(Users)
+  //implicit val userFormat = jsonFormat4(User)
+  //implicit val usersFormat = jsonFormat1(Users)
 
-  def main(args: Array[String]) {
-
-    val url = s"""jdbc:sqlite:${args(0)}"""
-
-    val route: Route =
+  //def main(args: Array[String]) {
+    /*val route: Route =
       get {
         pathPrefix("users") {
           val req = SQLiteHelpers.request(url, "SELECT * FROM users", Seq("id", "pseudo", "sub", "blacklist"))
@@ -40,13 +39,15 @@ object WebServer {
             case None => complete("error")
           }
         }
-      }
+      }*/
 
-    val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
+    val url = s"""jdbc:sqlite:${args(0)}"""
+
+    val bindingFuture = Http().bindAndHandle(routes, "localhost", 8080)
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     StdIn.readLine()
     bindingFuture
       .flatMap(_.unbind())
       .onComplete(_ ⇒ system.terminate())
-  }
+  //}
 }
