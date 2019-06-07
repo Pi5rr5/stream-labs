@@ -3,7 +3,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
-final case class User(name: String, age: Int, countryOfResidence: String)
+final case class User(id: Int, pseudo: String, sub: Int, blacklist: Int)
 final case class Users(users: Seq[User])
 
 object UserMethods {
@@ -13,18 +13,18 @@ object UserMethods {
   final case class GetUser(name: String)
   final case class DeleteUser(name: String)
 
-  //def props: Props = Props[UserMethods]
+  def props: Props = Props[UserMethods]
 }
 
-class UserMethods {
+class UserMethods extends Actor with ActorLogging {
 
   import UserMethods._
 
   var users = Set.empty[User]
 
-  /*def receive: Receive = {
+  def receive: Receive = {
     case GetUsers =>
-    //sender() ! Users(users.toSeq)
+      sender() ! Users(users.toSeq)
     case CreateUser(user) =>
     //users += user
     //sender() ! ActionPerformed(s"User ${user.name} created.")
@@ -33,5 +33,5 @@ class UserMethods {
     case DeleteUser(name) =>
     //users.find(_.name == name) foreach { user => users -= user }
     //sender() ! ActionPerformed(s"User ${name} deleted.")
-  }*/
+  }
 }

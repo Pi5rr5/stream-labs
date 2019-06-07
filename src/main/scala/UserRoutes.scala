@@ -16,12 +16,12 @@ import UserMethods._
 import akka.pattern.ask
 import akka.util.Timeout
 
-trait UserRoutes {
+trait UserRoutes extends JsonSupport {
   implicit def system: ActorSystem
 
   lazy val log = Logging(system, classOf[UserRoutes])
 
-  //def userRegistryActor: ActorRef
+  def userMethods: ActorRef
 
   implicit lazy val timeout = Timeout(5.seconds)
 
@@ -31,10 +31,8 @@ trait UserRoutes {
       pathEnd {
         concat(
           get {
-            /*val users: Future[Users] =
-              (userRegistryActor ? GetUsers).mapTo[Users]
-            complete(users)*/
-            complete("get")
+            val users: Future[Users] = (userMethods ? GetUsers).mapTo[Users]
+            complete(users)
           },
           post {
             /*entity(as[User]) { user =>

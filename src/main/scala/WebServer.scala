@@ -1,4 +1,4 @@
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.Done
@@ -10,15 +10,16 @@ import spray.json.DefaultJsonProtocol._
 import utils.SQLiteHelpers
 import utils.FromMap.to
 
+import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 
 object WebServer extends App with UserRoutes {
 
   lazy val routes: Route = userRoutes
 
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem("stream-labs")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val executionContext: ExecutionContext = system.dispatcher
 
   case class User(id: Int, pseudo: String, sub: Int, blacklist: Int)
 
@@ -40,6 +41,8 @@ object WebServer extends App with UserRoutes {
           }
         }
       }*/
+
+    val userMethods: ActorRef = system.actorOf(UserMethods.props, "userMethods")
 
     val url = s"""jdbc:sqlite:${args(0)}"""
 

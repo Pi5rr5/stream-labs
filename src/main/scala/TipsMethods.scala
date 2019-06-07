@@ -1,10 +1,14 @@
-import akka.http.scaladsl.server.Directives.{complete, get, path}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 
-object TipRoutes {
-  val routes =
+object TipsMethods {
+  def tipsRoutes(): Route =
     get {
-      path("pong") {
-        complete("PING!")
+      pathPrefix("pong") {
+        complete(getTips())
       }
     }
+
+  def getTips(): String =
+    "PING!"
 }
