@@ -14,41 +14,39 @@ import scala.io.StdIn
 
 object WebServer {
 
-  // needed to run the route
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
-  // needed for the future map/flatmap in the end and future in fetchItem and saveOrder
   implicit val executionContext = system.dispatcher
 
-  case class Key(key: Int)
-  case class Keys(vec: Vector[Key])
-  implicit val keyFormat = jsonFormat1(Key)
-  implicit val keysFormat = jsonFormat1(Keys)
+  case class User(id: Int, pseudo: String, sub: Int, blacklist: Int)
 
-  // To run your application, use the following command : sbt "run path/to/the/correction/src/main/resources/stream-labs.db"
-  // Currently, stream-labs.db has only one table "table_test" with one column "key" (type integer)
+  case class Users(vec: Vector[User])
+
+  implicit val userFormat = jsonFormat4(User)
+  implicit val usersFormat = jsonFormat1(Users)
+
   def main(args: Array[String]) {
 
     val url = s"""jdbc:sqlite:${args(0)}"""
 
     val route: Route =
       get {
-        pathPrefix("col") {
-          val req = SQLiteHelpers.request(url, "SELECT * FROM table_test", Seq("key"))
+        pathPrefix("users") {
+          val req = SQLiteHelpers.request(url, "SELECT * FROM users", Seq("id", "pseudo", "sub", "blacklist"))
+          //todo case id or no id
           req match {
-            case Some(r) => val values = r.flatMap(v => to[Key].from(v))
+            case Some(r) => val values = r.flatMap(v => to[User].from(v))
               complete(values)
-            case None => complete("mauvaise table")
+            case None => complete("error")
           }
         }
       }
 
     val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-    StdIn.readLine() // let it run until user presses return
+    StdIn.readLine()
     bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ ⇒ system.terminate()) // and shutdown when done
-
+      .flatMap(_.unbind())
+      .onComplete(_ ⇒ system.terminate())
   }
 }
