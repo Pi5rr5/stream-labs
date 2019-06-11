@@ -1,20 +1,26 @@
-import akka.actor.{ ActorRef, ActorSystem }
+package streamlabs.routes
+
+import akka.actor.{ActorRef, ActorSystem}
 import akka.event.Logging
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.{concat, pathEnd, pathPrefix, rejectEmptyResponse}
+import akka.http.scaladsl.server.PathMatchers.Segment
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.FutureDirectives._
+import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
+import akka.http.scaladsl.server.directives.MarshallingDirectives._
+import akka.http.scaladsl.server.directives.PathDirectives.path
+import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.util.Timeout
+import akka.pattern.ask
 
 import scala.concurrent.duration._
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.MethodDirectives.delete
-import akka.http.scaladsl.server.directives.MethodDirectives.get
-import akka.http.scaladsl.server.directives.MethodDirectives.post
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
-import akka.http.scaladsl.server.directives.PathDirectives.path
-
 import scala.concurrent.Future
-import UserMethods._
-import akka.pattern.ask
-import akka.util.Timeout
+import streamlabs.methods.UserMethods._
+import streamlabs.methods.User
+import streamlabs.methods.Users
+import streamlabs.utils.JsonSupport
+
 
 trait UserRoutes extends JsonSupport {
   implicit def system: ActorSystem
@@ -35,27 +41,26 @@ trait UserRoutes extends JsonSupport {
             complete(users)
           },
           post {
-            /*entity(as[User]) { user =>
+            entity(as[User]) { user =>
               val userCreated: Future[ActionPerformed] =
-                (userRegistryActor ? CreateUser(user)).mapTo[ActionPerformed]
+                (userMethods ? CreateUser(user)).mapTo[ActionPerformed]
               onSuccess(userCreated) { performed =>
-                log.info("Created user [{}]: {}", user.name, performed.description)
+                log.info("Created user [{}]: {}", user.pseudo, performed.description)
                 complete((StatusCodes.Created, performed))
               }
-            }*/
-            complete("post")
+            }
+            //complete("post")
           }
         )
       },
       path(Segment) { id =>
         concat(
           get {
-            /*val maybeUser: Future[Option[User]] =
-              (userRegistryActor ? GetUser(name)).mapTo[Option[User]]
+            val maybeUser: Future[Option[User]] =
+              (userMethods ? GetUser(id.toInt)).mapTo[Option[User]]
             rejectEmptyResponse {
               complete(maybeUser)
-            }*/
-            complete(s"get with id $id")
+            }
           },
           delete {
             /*val userDeleted: Future[ActionPerformed] =

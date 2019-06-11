@@ -1,11 +1,11 @@
-import UserMethods.ActionPerformed
+package streamlabs.utils
 
-//#json-support
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import streamlabs.methods.UserMethods.ActionPerformed
+import streamlabs.methods.{User, Users}
 import spray.json.DefaultJsonProtocol
 
 trait JsonSupport extends SprayJsonSupport {
-  // import the default encoders for primitive types (Int, String, Lists etc)
   import DefaultJsonProtocol._
 
   implicit val userJsonFormat = jsonFormat4(User)
@@ -13,4 +13,3 @@ trait JsonSupport extends SprayJsonSupport {
 
   implicit val actionPerformedJsonFormat = jsonFormat1(ActionPerformed)
 }
-//#json-support

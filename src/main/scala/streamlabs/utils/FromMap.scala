@@ -1,4 +1,4 @@
-package utils
+package streamlabs.utils
 
 import shapeless._, labelled.{ FieldType, field }
 

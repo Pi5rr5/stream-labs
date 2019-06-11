@@ -1,4 +1,4 @@
-package utils
+package streamlabs.utils
 
 import java.sql.{Connection, DriverManager, ResultSet}
 
