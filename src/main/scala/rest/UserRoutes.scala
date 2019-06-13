@@ -16,6 +16,8 @@ import javax.ws.rs.Path
 @Path("/users")
 @Api(value = "/users", produces = "application/json")
 class UserRoutes(modules: Configuration with PersistenceModule with DbModule with ActorModule) extends Directives {
+  import modules.executeOperation
+  import modules.system.dispatcher
 
   @Path("/{id}")
   @ApiOperation(value = "Return User", notes = "", nickname = "", httpMethod = "GET")
