@@ -22,5 +22,5 @@ object Main extends App with RouteConcatenation {
       SwaggerDocService.assets ~
       SwaggerDocService.routes), "localhost", 8080)
 
-  println(s"Server online at http://localhost:8080/")
+  println(s"Swagger online on http://localhost:8080/swagger/")
 }
