@@ -14,5 +14,4 @@ object SwaggerDocService extends SwaggerHttpService  {
 
   def assets = pathPrefix("swagger") {
     getFromResourceDirectory("swagger") ~ pathSingleSlash(get(redirect("index.html", StatusCodes.PermanentRedirect))) }
-
 }
