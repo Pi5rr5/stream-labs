@@ -2,45 +2,45 @@
 
 ## Users
 
-| Method        | Path                              | Description                   |
-|:------------- |:--------------------------------- |:----------------------------- |
-| `GET`         | /users                            | get all users                 |
-| `GET`         | /users/{user-id}                  | get user                      |
-| `POST`        | /users                            | new users                     |
-| `DELETE`      | /users/{user-id}                  | cancel users                  |
-| `GET`         | /users?filter="sub"               | get all subs users            |
-| `POST`        | /users/subs                       | new subs                      |
-| `POST`        | /users/unsubs/{user-id}           | cancel subs                   |
-| `GET`         | /users/{user-id}/tips             | get all user's tips           |
-| `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        |
-| `GET`         | /users/blacklist                  | get all blacklisted users     |
-| `POST`        | /users/blacklist                  | blacklisted user              |
-| `POST`        | /users/unblacklist/{user-id}      | remover user from blacklisted |
+| Method        | Path                              | Description                   | Status        |
+|:------------- |:--------------------------------- |:----------------------------- |:------------- |
+| `GET`         | /users                            | get all users                 | In progess    |
+| `GET`         | /users/{user-id}                  | get user                      | In progess    |
+| `POST`        | /users                            | new users                     | In progess    |
+| `DELETE`      | /users/{user-id}                  | cancel users                  | In progess    |
+| `GET`         | /users?filter="sub"               | get all subs users            | In progess    |
+| `POST`        | /users/subs                       | new subs                      | In progess    |
+| `POST`        | /users/unsubs/{user-id}           | cancel subs                   | In progess    |
+| `GET`         | /users/{user-id}/tips             | get all user's tips           | In progess    |
+| `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        | In progess    |
+| `GET`         | /users/blacklist                  | get all blacklisted users     | In progess    |
+| `POST`        | /users/blacklist                  | blacklisted user              | In progess    |
+| `POST`        | /users/unblacklist/{user-id}      | remover user from blacklisted | In progess    |
 
 ## Tips
 
-| Method        | Path               | Description                  |
-|:------------- |:------------------ |:---------------------------- |
-| `GET`         | /tips              | get all tips                 |
-| `POST`        | /tips              | new tips                     |
-| `DELETE`      | /tips/{tips-id}    | cancel tips                  |
-| `GET`         | /tips?aggs="sum"   | sum all tips                 |
+| Method        | Path               | Description                  | Status        | Status        |
+|:------------- |:------------------ |:---------------------------- |:------------- |:------------- |
+| `GET`         | /tips              | get all tips                 | In progess    | In progess    |
+| `POST`        | /tips              | new tips                     | In progess    | In progess    |
+| `DELETE`      | /tips/{tips-id}    | cancel tips                  | In progess    | In progess    |
+| `GET`         | /tips?aggs="sum"   | sum all tips                 | In progess    | In progess    |
 
 ## Giveaways
 
-| Method        | Path                          | Description                  |
-|:------------- |:----------------------------- |:---------------------------- |
-| `GET`         | /giveaways                    | get all giveaways            |
-| `GET`         | /giveaways/{giveaway-id}      | get giveaways                |
-| `POST`        | /giveaways                    | new giveaway                 |
-| `POST`        | /giveaways/participate        | participate to a giveaway    |
-| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              |
+| Method        | Path                          | Description                  | Status        |
+|:------------- |:----------------------------- |:---------------------------- |:------------- |
+| `GET`         | /giveaways                    | get all giveaways            | In progess    |
+| `GET`         | /giveaways/{giveaway-id}      | get giveaways                | In progess    |
+| `POST`        | /giveaways                    | new giveaway                 | In progess    |
+| `POST`        | /giveaways/participate        | participate to a giveaway    | In progess    |
+| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | In progess    |
 
 ## Surveys
 
-| Method        | Path                        | Description             |
-|:------------- |:--------------------------- |:----------------------- |
-| `GET`         | /surveys                    | get all surveys         |
-| `POST`        | /surveys                    | new survey              |
-| `POST`        | /surveys/participate        | participate to a survey |
-| `GET`         | /surveys/{survey-id}/result | get survey's result     |
+| Method        | Path                        | Description             | Status        |
+|:------------- |:--------------------------- |:----------------------- |:------------- |
+| `GET`         | /surveys                    | get all surveys         | In progess    |
+| `POST`        | /surveys                    | new survey              | In progess    |
+| `POST`        | /surveys/participate        | participate to a survey | In progess    |
+| `GET`         | /surveys/{survey-id}/result | get survey's result     | In progess    |
