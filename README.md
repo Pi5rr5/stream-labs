@@ -9,13 +9,13 @@
 | `POST`        | /users                            | new users                     | In progess    |
 | `DELETE`      | /users/{user-id}                  | delete user                   | In progess    |
 | `GET`         | /users?filter="sub"               | get all subs users            | In progess    |
-| `POST`        | /users/subs                       | new subs                      | In progess    |
-| `POST`        | /users/unsubs/{user-id}           | cancel subs                   | In progess    |
+| `PATCH`       | /users/subs                       | new subs                      | In progess    |
+| `PATCH`       | /users/unsubs/{user-id}           | cancel subs                   | In progess    |
 | `GET`         | /users/{user-id}/tips             | get all user's tips           | In progess    |
 | `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        | In progess    |
-| `GET`         | /users/blacklist                  | get all blacklisted users     | In progess    |
-| `POST`        | /users/blacklist                  | blacklisted user              | In progess    |
-| `POST`        | /users/unblacklist/{user-id}      | remover user from blacklisted | In progess    |
+| `GET`         | /users/blacklist                  | get all blacklisted users     | Done          |
+| `PATCH`       | /users/blacklist                  | blacklisted user              | Done          |
+| `PATCH`       | /users/unblacklist/{user-id}      | remover user from blacklisted | In progess    |
 
 ## Tips
 
