@@ -7,7 +7,7 @@
 | `GET`         | /users                            | get all users                 | In progess    |
 | `GET`         | /users/{user-id}                  | get user                      | In progess    |
 | `POST`        | /users                            | new users                     | In progess    |
-| `DELETE`      | /users/{user-id}                  | cancel users                  | In progess    |
+| `DELETE`      | /users/{user-id}                  | delete user                   | In progess    |
 | `GET`         | /users?filter="sub"               | get all subs users            | In progess    |
 | `POST`        | /users/subs                       | new subs                      | In progess    |
 | `POST`        | /users/unsubs/{user-id}           | cancel subs                   | In progess    |
