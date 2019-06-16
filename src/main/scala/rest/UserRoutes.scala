@@ -166,8 +166,37 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
     }
   }
 
+  @Path("/unblacklist")
+  @ApiOperation(value = "Unblacklist user", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "body", value = "User id Object", required = true,
+      dataType = "persistence.entities.UserId", paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 201, message = "Unblacklist users"),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def usersUnblacklistRoute = path("users" / "unblacklist") {
+    patch {
+      entity(as[UserId]) { userToUpdate =>
+        onComplete(modules.usersDal.findOne(userToUpdate.id)) {
+          case Success(userOpt) => userOpt match {
+            case Some(user) => {
+              onComplete(modules.usersDal.update(User(user.id, user.pseudo, user.sub, Option(0)))) {
+                case Success(user) => complete(user)
+                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+              }
+            }
+            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate} doesn't exist !' }")
+          }
+          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+        }
+      }
+    }
+  }
 
-  val routes: Route = usersGetRoute ~ userGetRoute ~ userPostRoute ~ userPatchRoute ~ userDeleteRoute ~ usersGetBlacklistedRoute ~ usersBlacklistRoute
+
+  val routes: Route = usersGetRoute ~ userGetRoute ~ userPostRoute ~ userPatchRoute ~ userDeleteRoute ~ usersGetBlacklistedRoute ~ usersBlacklistRoute ~ usersUnblacklistRoute
 
 }
 
