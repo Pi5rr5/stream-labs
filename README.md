@@ -4,10 +4,10 @@
 
 | Method        | Path                              | Description                   | Status        |
 |:------------- |:--------------------------------- |:----------------------------- |:------------- |
-| `GET`         | /users                            | get all users                 | In progess    |
-| `GET`         | /users/{user-id}                  | get user                      | In progess    |
-| `POST`        | /users                            | new users                     | In progess    |
-| `DELETE`      | /users/{user-id}                  | delete user                   | In progess    |
+| `GET`         | /users                            | get all users                 | Done          |
+| `GET`         | /users/{user-id}                  | get user                      | Done          |
+| `POST`        | /users                            | new users                     | Done          |
+| `DELETE`      | /users/{user-id}                  | delete user                   | Done          |
 | `GET`         | /users?filter="sub"               | get all subs users            | In progess    |
 | `PATCH`       | /users/subs                       | new subs                      | In progess    |
 | `PATCH`       | /users/unsubs                     | cancel subs                   | In progess    |
@@ -15,7 +15,7 @@
 | `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        | In progess    |
 | `GET`         | /users/blacklist                  | get all blacklisted users     | Done          |
 | `PATCH`       | /users/blacklist                  | blacklisted user              | Done          |
-| `PATCH`       | /users/unblacklist                | remover user from blacklisted | In progess    |
+| `PATCH`       | /users/unblacklist                | remover user from blacklisted | Done          |
 
 ## Tips
 
