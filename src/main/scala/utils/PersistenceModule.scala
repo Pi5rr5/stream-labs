@@ -3,7 +3,7 @@ package utils
 import com.byteslounge.slickrepo.repository.Repository
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import persistence.entities.{User, UserRepository}
+import persistence.entities.{Tip, TipRepository, User, UserRepository}
 import slick.dbio.DBIO
 
 import scala.concurrent.Future
@@ -25,6 +25,7 @@ trait DbModule extends Profile {
 
 trait PersistenceModule {
   val usersDal: Repository[User, Int]
+  val tipsDal: Repository[Tip, Int]
 }
 
 
@@ -37,4 +38,5 @@ trait PersistenceModuleImpl extends PersistenceModule with DbModule {
   override implicit val db: JdbcProfile#Backend#Database = dbConfig.db
 
   override val usersDal = new UserRepository(profile)
+  override val tipsDal = new TipRepository(profile)
 }

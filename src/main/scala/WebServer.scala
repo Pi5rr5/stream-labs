@@ -1,9 +1,10 @@
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.RouteConcatenation
 import akka.stream.ActorMaterializer
-import rest.UserRoutes
+import rest.{TipRoutes, UserRoutes}
 import utils._
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
+
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -16,10 +17,11 @@ object Main extends App with RouteConcatenation {
 
   import modules.profile.api._
   Await.result(modules.db.run(modules.usersDal.tableQuery.schema.create), Duration.Inf)
-  Await.result(modules.db.run(modules.usersDal.tipsQuery.schema.create), Duration.Inf)
+  Await.result(modules.db.run(modules.tipsDal.tableQuery.schema.create), Duration.Inf)
 
   val bindingFuture = Http().bindAndHandle(
     cors()(new UserRoutes(modules).routes ~
+      new TipRoutes(modules).routes ~
       SwaggerDocService.assets ~
       SwaggerDocService.routes), "localhost", 8080)
 
