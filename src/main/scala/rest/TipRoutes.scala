@@ -46,8 +46,16 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   def tipPostRoute = path("tips") {
     post {
       entity(as[SimpleTip]) { tipToInsert =>
-        onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
-          case Success(tip) => complete(tip)
+        onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
+          case Success(userOpt) => userOpt match {
+            case Some(_) => {
+              onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
+                case Success(tip) => complete(tip)
+                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+              }
+            }
+            case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
+          }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }
