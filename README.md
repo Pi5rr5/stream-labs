@@ -8,9 +8,9 @@
 | `GET`         | /users/{user-id}                  | get user                      | Done          |
 | `POST`        | /users                            | new users                     | Done          |
 | `DELETE`      | /users/{user-id}                  | delete user                   | Done          |
-| `GET`         | /users?filter="sub"               | get all subs users            | In progess    |
-| `PATCH`       | /users/subs                       | new subs                      | In progess    |
-| `PATCH`       | /users/unsubs                     | cancel subs                   | In progess    |
+| `GET`         | /users/subs                       | get all subs users            | Done          |
+| `PATCH`       | /users/subs                       | new subs                      | Done          |
+| `PATCH`       | /users/unsubs                     | cancel subs                   | Done          |
 | `GET`         | /users/{user-id}/tips             | get all user's tips           | In progess    |
 | `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        | In progess    |
 | `GET`         | /users/blacklist                  | get all blacklisted users     | Done          |
