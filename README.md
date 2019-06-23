@@ -21,9 +21,9 @@
 
 | Method        | Path               | Description                  | Status        | Status        |
 |:------------- |:------------------ |:---------------------------- |:------------- |:------------- |
-| `GET`         | /tips              | get all tips                 | In progess    | In progess    |
-| `POST`        | /tips              | new tips                     | In progess    | In progess    |
-| `DELETE`      | /tips/{tips-id}    | cancel tips                  | In progess    | In progess    |
+| `GET`         | /tips              | get all tips                 | In progess    | Done          |
+| `POST`        | /tips              | new tips                     | In progess    | Done          |
+| `DELETE`      | /tips/{tips-id}    | cancel tips                  | In progess    | Done          |
 | `GET`         | /tips?aggs="sum"   | sum all tips                 | In progess    | In progess    |
 
 ## Giveaways

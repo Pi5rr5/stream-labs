@@ -51,7 +51,7 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
         onComplete(modules.usersDal.findOne(id)) {
           case Success(userOpt) => userOpt match {
             case Some(user) => complete(user)
-            case None => complete(NotFound, s"{ error: 'The user ${id} doesn't exist !' }")
+            case None => complete(NotFound, s"""{ error: "The user ${id} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -158,7 +158,7 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate} doesn't exist !' }")
+            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -187,7 +187,7 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate} doesn't exist !' }")
+            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -231,7 +231,7 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate} doesn't exist !' }")
+            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -260,7 +260,7 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate} doesn't exist !' }")
+            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -270,8 +270,8 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
 
 
   val routes: Route = usersGetRoute ~ userGetRoute ~ userPostRoute ~ userPatchRoute ~ userDeleteRoute ~
-                      usersGetBlacklistedRoute ~ userPatchBlacklistRoute ~ usersPatchUnblacklistRoute ~
-                      usersGetSubsRoute ~ userPatchSubRoute ~ userPatchUnsubRoute
+    usersGetBlacklistedRoute ~ userPatchBlacklistRoute ~ usersPatchUnblacklistRoute ~
+    usersGetSubsRoute ~ userPatchSubRoute ~ userPatchUnsubRoute
 
 }
 
