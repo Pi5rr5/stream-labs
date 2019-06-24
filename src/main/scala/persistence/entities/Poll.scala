@@ -5,7 +5,9 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
-case class SimplePoll()
+case class SimplePoll(question: String)
+
+case class PollParticipate(id: Int, option1: Int, option2: Int)
 
 case class Poll(override val id: Option[Int], question: String, option1: Int, option2: Int) extends Entity[Poll, Int] {
   def withId(id: Int): Poll = this.copy(id = Some(id))
