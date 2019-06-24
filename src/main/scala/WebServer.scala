@@ -18,6 +18,7 @@ object Main extends App with RouteConcatenation {
   import modules.profile.api._
   Await.result(modules.db.run(modules.usersDal.tableQuery.schema.createIfNotExists), Duration.Inf)
   Await.result(modules.db.run(modules.tipsDal.tableQuery.schema.createIfNotExists), Duration.Inf)
+  Await.result(modules.db.run(modules.giveawaysDal.tableQuery.schema.createIfNotExists), Duration.Inf)
 
   val bindingFuture = Http().bindAndHandle(
     cors()(new UserRoutes(modules).routes ~

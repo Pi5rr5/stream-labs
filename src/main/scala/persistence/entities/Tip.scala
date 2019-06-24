@@ -28,7 +28,7 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
 
     def * = (id.?, user_id, amount.?) <> ((Tip.apply _).tupled, Tip.unapply)
 
-    def user = foreignKey("USER_FK", user_id, tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
+    def user_fk = foreignKey("user_fk", user_id, tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
   }
 
 }
