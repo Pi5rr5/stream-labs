@@ -1,7 +1,7 @@
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.RouteConcatenation
 import akka.stream.ActorMaterializer
-import rest.{TipRoutes, UserRoutes}
+import rest.{GiveawayRoutes, TipRoutes, UserRoutes}
 import utils._
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 
@@ -23,6 +23,7 @@ object Main extends App with RouteConcatenation {
   val bindingFuture = Http().bindAndHandle(
     cors()(new UserRoutes(modules).routes ~
       new TipRoutes(modules).routes ~
+      new GiveawayRoutes(modules).routes ~
       SwaggerDocService.assets ~
       SwaggerDocService.routes), "localhost", 8080)
 
