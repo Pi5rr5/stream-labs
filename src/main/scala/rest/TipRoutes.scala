@@ -12,6 +12,7 @@ import SprayJsonSupport._
 import scala.util.{Failure, Success}
 import io.swagger.annotations._
 import javax.ws.rs.Path
+
 @Path("/tips")
 @Api(value = "/tips", produces = "application/json")
 class TipRoutes(modules: Configuration with PersistenceModule with DbModule with ActorModule) extends Directives {
