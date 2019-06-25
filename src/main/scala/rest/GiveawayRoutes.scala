@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.{Directives, Route}
 import entities.JsonProtocol._
 import io.swagger.annotations._
 import javax.ws.rs.Path
-import persistence.entities.{Giveaway, GiveawayRepository, SimpleGiveaway, SimpleTip, Tip}
+import persistence.entities.{Giveaway, GiveawayRepository, SimpleGiveaway, SimpleUserGiveaway, UserGiveaway}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.{ActorModule, Configuration, DbModule, PersistenceModule}
@@ -59,6 +59,47 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
     }
   }
 
-  val routes: Route = giveawaysGetRoute ~ givewayPostRoute
+  @Path("/{id}")
+  @ApiOperation(value = "Delete Giveaway", notes = "", nickname = "", httpMethod = "DELETE", produces = "text/plain")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", value = "Giveaway Id", required = false, dataType = "int", paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 203, message = "Entity Deleted"),
+    new ApiResponse(code = 404, message = "Giveaway Not Found"),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def giveawayDeleteRoute = path("giveaways" / IntNumber) { (id) =>
+    delete {
+      onComplete(modules.giveawaysDal.delete(Giveaway(Option(id), None, None))) {
+        case Success(_) => complete(OK)
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      }
+    }
+  }
+
+  @Path("/participate")
+  @ApiOperation(value = "Participate to giveaway", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "body", value = "UserGiveaway Object", required = true,
+      dataType = "persistence.entities.SimpleUserGiveaway", paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 500, message = "Internal server error"),
+    new ApiResponse(code = 400, message = "Bad Request"),
+    new ApiResponse(code = 201, message = "Entity Created")
+  ))
+  def userGiveawayPostRoute = path("giveaways") {
+    post {
+      entity(as[SimpleUserGiveaway]) { userGiveawayToInsert =>
+        onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
+          case Success(userGiveaway) => complete(userGiveaway)
+          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+        }
+      }
+    }
+  }
+
+  val routes: Route = giveawaysGetRoute ~ givewayPostRoute ~ giveawayDeleteRoute ~ userGiveawayPostRoute
 }
 
