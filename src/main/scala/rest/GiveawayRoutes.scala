@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.{Directives, Route}
 import entities.JsonProtocol._
 import io.swagger.annotations._
 import javax.ws.rs.Path
-import persistence.entities.{Giveaway, GiveawayRepository, SimpleGiveaway, SimpleUserGiveaway, UserGiveaway}
+import persistence.entities.{Giveaway, GiveawayRepository, SimpleGiveaway, SimpleUserGiveaway, UserGiveaway, UserGiveawayRepository}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.{ActorModule, Configuration, DbModule, PersistenceModule}
@@ -23,6 +23,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("streamlabs")
   implicit val profile: JdbcProfile = dbConfig.profile
   val giveawaysDal = new GiveawayRepository(profile)
+  val userGiveawaysDal = new UserGiveawayRepository(profile)
 
   @ApiOperation(value = "Return all Giveaways", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
@@ -89,7 +90,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
     new ApiResponse(code = 400, message = "Bad Request"),
     new ApiResponse(code = 201, message = "Entity Created")
   ))
-  def userGiveawayPostRoute = path("giveaways") {
+  def userGiveawayPostRoute: Route = path("giveaways" / "participate") {
     post {
       entity(as[SimpleUserGiveaway]) { userGiveawayToInsert =>
         onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
@@ -100,6 +101,57 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
     }
   }
 
-  val routes: Route = giveawaysGetRoute ~ givewayPostRoute ~ giveawayDeleteRoute ~ userGiveawayPostRoute
+  @Path("/{id}")
+  @ApiOperation(value = "Return Giveway", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", value = "Giveway Id", required = false, dataType = "int", paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return Giveaway", response = classOf[Giveaway]),
+    new ApiResponse(code = 400, message = "The Giveaway id should be greater than zero"),
+    new ApiResponse(code = 404, message = "Return Giveaway Not Found"),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def giveawayGetRoute: Route = path("giveaways" / IntNumber) { id =>
+    get {
+      validate(id > 0, s"{ error: 'The giveaway id should be greater than zero !' }") {
+        onComplete(modules.giveawaysDal.findOne(id)) {
+          case Success(giveawayOpt) => giveawayOpt match {
+            case Some(giveaway) => complete(giveaway)
+            case None => complete(NotFound, s"""{ error: "The giveaway $id doesn't exist !" }""")
+          }
+          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+        }
+      }
+    }
+  }
+
+  @Path("/{id}/draw")
+  @ApiOperation(value = "Return a drawn user", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", value = "Giveway Id", required = false, dataType = "int", paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return a drawn user", response = classOf[Giveaway]),
+    new ApiResponse(code = 400, message = "The Giveaway id should be greater than zero"),
+    new ApiResponse(code = 404, message = "Return Giveaway Not Found"),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def drawGetRoute: Route = path("giveaways" / IntNumber / "draw") { id =>
+    get {
+      validate(id > 0, s"{ error: 'The giveaway id should be greater than zero !' }") {
+        onComplete(userGiveawaysDal.draw(id)) {
+          /*case Success(giveawayOpt) => giveawayOpt match {
+            case Some(user) => complete(user)
+            case None => complete(NotFound, s"""{ error: "The giveaway $id doesn't exist !" }""")
+          }*/
+          case Success(user) => complete(user)
+          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+        }
+      }
+    }
+  }
+
+  val routes: Route = giveawaysGetRoute ~ givewayPostRoute ~ giveawayDeleteRoute ~ userGiveawayPostRoute ~ giveawayGetRoute ~ drawGetRoute
 }
 

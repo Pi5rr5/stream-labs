@@ -38,6 +38,18 @@ class UserGiveawayRepository(override val driver: JdbcProfile) extends Repositor
     def user_fk = foreignKey("user_fk", user_id, userTable)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
   }
 
+  def draw(giveawayId: Int): DBIO[Seq[(UserGiveaway, User)]] = {
+    val randomFunction = SimpleFunction.nullary[Double]("random")
+
+    val q = for {
+      (gar, u) <- tableQuery join userRepository.tableQuery on (_.user_id === _.id)
+    } yield (gar, u)
+
+    q.filter(_._1.giveaway_id === giveawayId)
+      .sortBy(_ => randomFunction)
+      .take(1)
+      .result
+  }
 }
 
 

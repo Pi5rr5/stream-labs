@@ -33,9 +33,9 @@
 | `GET`         | /giveaways                    | get all giveaways            | Done          |
 | `GET`         | /giveaways/{giveaway-id}      | get giveaways                | Done          |
 | `POST`        | /giveaways                    | new giveaway                 | Done          |
-| `POST`        | /giveaways/participate        | participate to a giveaway    | In progess    |
+| `POST`        | /giveaways/participate        | participate to a giveaway    | Done          |
 | `DELETE`      | /giveaways/{giveaways-id}     | delete giveaway              | Done          |
-| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | In progess    |
+| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | Done          |
 
 ## Surveys
 
@@ -45,3 +45,6 @@
 | `POST`        | /surveys                    | new survey              | In progess    |
 | `POST`        | /surveys/participate        | participate to a survey | In progess    |
 | `GET`         | /surveys/{survey-id}/result | get survey's result     | In progess    |
+
+
+- Revoir tous les codes / messages d'erreur du swagger
