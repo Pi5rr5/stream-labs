@@ -6,7 +6,9 @@ import akka.http.scaladsl.server.{Directives, Route}
 import entities.JsonProtocol._
 import io.swagger.annotations._
 import javax.ws.rs.Path
-import persistence.entities.{SimpleTip, Tip}
+import persistence.entities.{Giveaway, GiveawayRepository, SimpleGiveaway, SimpleTip, Tip}
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 import utils.{ActorModule, Configuration, DbModule, PersistenceModule}
 
 import scala.util.{Failure, Success}
@@ -18,68 +20,45 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   import modules.executeOperation
   import modules.system.dispatcher
 
-  /*@ApiOperation(value = "Return all Tips", notes = "", nickname = "", httpMethod = "GET")
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("streamlabs")
+  implicit val profile: JdbcProfile = dbConfig.profile
+  val giveawaysDal = new GiveawayRepository(profile)
+
+  @ApiOperation(value = "Return all Giveaways", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Tips", response = classOf[Tip]),
+    new ApiResponse(code = 200, message = "Return Giveaways", response = classOf[Giveaway]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def tipsGetRoute = path("tips") {
+  def giveawaysGetRoute: Route = path("giveaways") {
     get {
-      onComplete(modules.tipsDal.findAll()) {
-        case Success(tips) => complete(tips)
+      onComplete(giveawaysDal.getGiveaways()) {
+        case Success(giveaways) => complete(giveaways)
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
 
-  @ApiOperation(value = "Add Tip", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
+  @ApiOperation(value = "Add Giveaway", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "Tip Object", required = true,
-      dataType = "persistence.entities.SimpleTip", paramType = "body")
+    new ApiImplicitParam(name = "body", value = "Giveaway Object", required = true,
+      dataType = "persistence.entities.SimpleGiveaway", paramType = "body")
   ))
   @ApiResponses(Array(
     new ApiResponse(code = 500, message = "Internal server error"),
     new ApiResponse(code = 400, message = "Bad Request"),
     new ApiResponse(code = 201, message = "Entity Created")
   ))
-  def tipPostRoute = path("tips") {
+  def givewayPostRoute = path("giveaways") {
     post {
-      entity(as[SimpleTip]) { tipToInsert =>
-        onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(_) => {
-              onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
-                case Success(tip) => complete(tip)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            }
-            case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
-          }
+      entity(as[SimpleGiveaway]) { giveawayToInsert =>
+        onComplete(modules.giveawaysDal.save(Giveaway(None, Option(giveawayToInsert.user_id), Option(giveawayToInsert.description)))) {
+          case Success(giveaway) => complete(giveaway)
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }
     }
   }
 
-  @Path("/{id}")
-  @ApiOperation(value = "Delete Tip", notes = "", nickname = "", httpMethod = "DELETE", produces = "text/plain")
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "id", value = "Tip Id", required = false, dataType = "int", paramType = "path")
-  ))
-  @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Entity Deleted"),
-    new ApiResponse(code = 404, message = "Tip Not Found"),
-    new ApiResponse(code = 500, message = "Internal server error")
-  ))
-  def tipDeleteRoute = path("tips" / IntNumber) { (id) =>
-    delete {
-      onComplete(modules.tipsDal.delete(Tip(Option(id), None, None))) {
-        case Success(_) => complete(OK)
-        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-      }
-    }
-  }*/
-
-  val routes: Route = null //tipsGetRoute ~ tipPostRoute ~ tipDeleteRoute
+  val routes: Route = giveawaysGetRoute ~ givewayPostRoute
 }
 
