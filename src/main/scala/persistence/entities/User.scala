@@ -5,7 +5,7 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
-case class UserId(id: Int)
+case class UserId(user_id: Int)
 
 case class SimpleUser(pseudo: String, sub: Int, blacklist: Int)
 
