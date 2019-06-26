@@ -11,20 +11,21 @@
 | `GET`         | /users/subs                       | get all subs users            | Done          |
 | `PATCH`       | /users/subs                       | new subs                      | Done          |
 | `PATCH`       | /users/unsubs                     | cancel subs                   | Done          |
-| `GET`         | /users/{user-id}/tips             | get all user's tips           | In progess    |
-| `GET`         | /users?groupby="user"&aggs="sum"  | tips sum group by user        | In progess    |
 | `GET`         | /users/blacklist                  | get all blacklisted users     | Done          |
 | `PATCH`       | /users/blacklist                  | blacklisted user              | Done          |
 | `PATCH`       | /users/unblacklist                | remover user from blacklisted | Done          |
 
 ## Tips
 
-| Method        | Path               | Description                  | Status        | Status        |
-|:------------- |:------------------ |:---------------------------- |:------------- |:------------- |
-| `GET`         | /tips              | get all tips                 | In progess    | Done          |
-| `POST`        | /tips              | new tips                     | In progess    | Done          |
-| `DELETE`      | /tips/{tips-id}    | cancel tips                  | In progess    | Done          |
-| `GET`         | /tips?aggs="sum"   | sum all tips                 | In progess    | In progess    |
+| Method        | Path                  | Description                  | Status        | 
+|:------------- |:----------------------|:---------------------------- |:------------- |
+| `GET`         | /tips                 | get all tips                 | Done          |
+| `POST`        | /tips                 | new tips                     | Done          |
+| `DELETE`      | /tips/{tips-id}       | cancel tips                  | Done          |
+| `GET`         | /tips/sum             | sum all tips                 | Done          |
+| `GET`         | /tips/users           | get all the donators         | Done          |
+| `GET`         | /tips/users/{id}/sum  | tips sum of a user           | Done          |
+| `GET`         | /tips/users/sum       | tips sum group by user       | Done          |
 
 ## Giveaways
 

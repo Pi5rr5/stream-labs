@@ -5,6 +5,9 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.Future
+
+
 case class SimpleTip(user_id: Int, amount: Int)
 
 case class Tip(override val id: Option[Int], user_id: Option[Int], amount: Option[Int]) extends Entity[Tip, Int] {
@@ -18,6 +21,7 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
   val pkType = implicitly[BaseTypedType[Int]]
   val tableQuery = TableQuery[Tips]
   type TableType = Tips
+
   lazy val userRepository = new UserRepository(driver)
 
   class Tips(tag: Tag) extends Table[Tip](tag, "tips") with Keyed[Int] {
@@ -30,6 +34,32 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
     def * = (id.?, user_id, amount.?) <> ((Tip.apply _).tupled, Tip.unapply)
 
     def user = foreignKey("USER_FK", user_id, userRepository.tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
+  }
+
+  def sumOfTips(): DBIO[Seq[Int]] = {
+      tableQuery
+        .map(_.amount)
+        .result
+  }
+
+  def sumOfTipsForUser(userId: Int): DBIO[Seq[Int]] = {
+    tableQuery
+      .filter(_.user_id === userId)
+      .map(_.amount)
+      .result
+  }
+
+  def sumOfTipsByUsers() = {
+    tableQuery.groupBy(_.user_id).map {
+        case (userId, group) => (userId, group.map(_.amount).sum)
+      }.result
+  }
+
+  def getDonators(): DBIO[Seq[User]] = {
+    (tableQuery join userRepository.tableQuery on (_.user_id === _.id))
+      .map(x => x._2)
+      .distinct
+      .result
   }
 
 }
