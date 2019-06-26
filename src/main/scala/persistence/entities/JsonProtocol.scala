@@ -1,6 +1,6 @@
 package entities
 
-import persistence.entities.{SimpleUserGiveaway, UserGiveaway, SimpleGiveaway, Giveaway, SimpleTip, SimpleUser, Tip, User, UserId}
+import persistence.entities.{SimpleTip, SimpleUser, Tip, User, UserId, Poll, SimplePoll, PollParticipate, SimpleUserGiveaway, UserGiveaway, SimpleGiveaway, Giveaway}
 import spray.json.DefaultJsonProtocol
 
 object JsonProtocol extends DefaultJsonProtocol {
@@ -13,4 +13,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val simpleGiveAwayFormat = jsonFormat2(SimpleGiveaway)
   implicit val userGiveawayFormat = jsonFormat3(UserGiveaway)
   implicit val simpleUserGiveAwayFormat = jsonFormat2(SimpleUserGiveaway)
+  implicit val PollFormat = jsonFormat6(Poll)
+  implicit val simplePollFormat = jsonFormat3(SimplePoll)
+  implicit val pollParticipateFormat = jsonFormat3(PollParticipate)
 }

@@ -37,14 +37,11 @@
 | `DELETE`      | /giveaways/{giveaways-id}     | delete giveaway              | Done          |
 | `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | Done          |
 
-## Surveys
+## Polls
 
 | Method        | Path                        | Description             | Status        |
 |:------------- |:--------------------------- |:----------------------- |:------------- |
-| `GET`         | /surveys                    | get all surveys         | In progess    |
-| `POST`        | /surveys                    | new survey              | In progess    |
-| `POST`        | /surveys/participate        | participate to a survey | In progess    |
-| `GET`         | /surveys/{survey-id}/result | get survey's result     | In progess    |
-
-
-- Revoir tous les codes / messages d'erreur du swagger
+| `GET`         | /polls                      | get all polls           | Done          |
+| `POST`        | /polls                      | new polls               | Done          |
+| `PATCH`       | /polls/participate          | participate to a polls  | Done          |
+| `GET`         | /polls/{poll-id}/result     | get poll result         | Done          |
