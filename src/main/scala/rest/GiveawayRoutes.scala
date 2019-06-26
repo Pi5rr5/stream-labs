@@ -44,15 +44,15 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
       dataType = "persistence.entities.SimpleGiveaway", paramType = "body")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 500, message = "Internal server error"),
     new ApiResponse(code = 400, message = "Bad Request"),
-    new ApiResponse(code = 201, message = "Entity Created")
+    new ApiResponse(code = 201, message = "Created", response = classOf[Giveaway]),
+    new ApiResponse(code = 500, message = "Internal server error")
   ))
   def givewayPostRoute: Route = path("giveaways") {
     post {
       entity(as[SimpleGiveaway]) { giveawayToInsert =>
         onComplete(modules.giveawaysDal.save(Giveaway(None, Option(giveawayToInsert.description)))) {
-          case Success(giveaway) => complete(giveaway)
+          case Success(giveaway) => complete(Created, giveaway)
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }
@@ -65,14 +65,14 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
     new ApiImplicitParam(name = "id", value = "Giveaway Id", required = false, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 203, message = "Entity Deleted"),
-    new ApiResponse(code = 404, message = "Giveaway Not Found"),
+    new ApiResponse(code = 204, message = "Deleted"),
+    new ApiResponse(code = 404, message = "Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def giveawayDeleteRoute: Route = path("giveaways" / IntNumber) { id =>
     delete {
       onComplete(modules.giveawaysDal.delete(Giveaway(Option(id), None))) {
-        case Success(_) => complete(OK)
+        case Success(_) => complete(NoContent)
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
@@ -87,7 +87,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   @ApiResponses(Array(
     new ApiResponse(code = 500, message = "Internal server error"),
     new ApiResponse(code = 400, message = "Bad Request"),
-    new ApiResponse(code = 201, message = "Entity Created")
+    new ApiResponse(code = 200, message = "Participated to giveway")
   ))
   def userGiveawayPostRoute: Route = path("giveaways" / "participate") {
     post {
@@ -95,12 +95,18 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
         onComplete(modules.usersDal.findOne(userGiveawayToInsert.user_id)) {
           case Success(userOpt) => userOpt match {
             case Some(user) =>
-              validate(user.blacklist == Option(0), s"{ error: 'The user ${userGiveawayToInsert.user_id} is blacklisted !' }") {
-                onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
-                  case Success(userGiveaway) => complete(userGiveaway)
-                  case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+              onComplete(modules.giveawaysDal.findOne(userGiveawayToInsert.giveaway_id)) {
+                case Success(giveawayOpt) => giveawayOpt match {
+                  case Some(_) => validate(user.blacklist == Option(0), s"{ error: 'The user ${userGiveawayToInsert.user_id} is blacklisted !' }") {
+                    onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
+                      case Success(userGiveaway) => complete(userGiveaway)
+                      case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+                    }
+                  }
+                  case None => complete(NotFound, s"""{ error: "The giveaway ${userGiveawayToInsert.giveaway_id} doesn't exist !" }""")
                 }
               }
+            case None => complete(NotFound, s"""{ error: "The user ${userGiveawayToInsert.user_id} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -115,8 +121,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   ))
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Return Giveaway", response = classOf[Giveaway]),
-    new ApiResponse(code = 400, message = "The Giveaway id should be greater than zero"),
-    new ApiResponse(code = 404, message = "Return Giveaway Not Found"),
+    new ApiResponse(code = 404, message = "Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def giveawayGetRoute: Route = path("giveaways" / IntNumber) { id =>
@@ -138,14 +143,20 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   ))
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Return a drawn user", response = classOf[Giveaway]),
-    new ApiResponse(code = 400, message = "The Giveaway id should be greater than zero"),
-    new ApiResponse(code = 404, message = "Return Giveaway Not Found"),
+    new ApiResponse(code = 404, message = "Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def drawGetRoute: Route = path("giveaways" / IntNumber / "draw") { id =>
     get {
-      onComplete(userGiveawaysDal.draw(id)) {
-        case Success(user) => complete(user)
+      onComplete(modules.giveawaysDal.findOne(id)) {
+        case Success(giveawayOpt) => giveawayOpt match {
+          case Some(_) =>
+            onComplete(userGiveawaysDal.draw(id)) {
+              case Success(user) => complete(user)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"""{ error: "The giveaway $id doesn't exist !" }""")
+        }
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }

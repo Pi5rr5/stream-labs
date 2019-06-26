@@ -34,7 +34,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     }
   }
 
-  @ApiOperation(value = "New poll", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
+  @ApiOperation(value = "Add poll", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "body", value = "Poll Object", required = true,
       dataType = "persistence.entities.SimplePoll", paramType = "body")

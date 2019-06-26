@@ -29,12 +29,6 @@ class GiveawayRepository(override val driver: JdbcProfile) extends Repository[Gi
 
     def * = (id.?, description.?) <> ((Giveaway.apply _).tupled, Giveaway.unapply)
   }
-
-  /*def getGiveaways(): DBIO[Seq[(Giveaway, User)]] = {
-    (tableQuery join userRepository.tableQuery on (_.user_id === _.id))
-      .map(x => (x._1, x._2))
-      .result
-  }*/
 }
 
 

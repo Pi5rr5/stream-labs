@@ -28,7 +28,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
 
   @ApiOperation(value = "Return all Tips", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Tips", response = classOf[Tip]),
+    new ApiResponse(code = 200, message = "Return all Tips", response = classOf[Tip]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def tipsGetRoute: Route = path("tips") {
@@ -48,16 +48,17 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   @ApiResponses(Array(
     new ApiResponse(code = 500, message = "Internal server error"),
     new ApiResponse(code = 400, message = "Bad Request"),
-    new ApiResponse(code = 201, message = "Entity Created")
+    new ApiResponse(code = 201, message = "Created")
   ))
   def tipPostRoute: Route = path("tips") {
     post {
       entity(as[SimpleTip]) { tipToInsert =>
+        validate(tipToInsert.amount > 0, s"{ error: 'The amount should be greater than zero !' }")
         onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
           case Success(userOpt) => userOpt match {
             case Some(_) =>
               onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
-                case Success(tip) => complete(tip)
+                case Success(tip) => complete(Created, tip)
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
@@ -74,14 +75,14 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     new ApiImplicitParam(name = "id", value = "Tip Id", required = false, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Entity Deleted"),
-    new ApiResponse(code = 404, message = "Tip Not Found"),
+    new ApiResponse(code = 204, message = "Deleted"),
+    new ApiResponse(code = 404, message = "Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def tipDeleteRoute: Route = path("tips" / IntNumber) { id =>
     delete {
       onComplete(modules.tipsDal.delete(Tip(Option(id), None, None))) {
-        case Success(_) => complete(OK)
+        case Success(_) => complete(NoContent)
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
