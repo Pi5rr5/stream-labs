@@ -18,6 +18,7 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
   val pkType = implicitly[BaseTypedType[Int]]
   val tableQuery = TableQuery[Tips]
   type TableType = Tips
+  lazy val userRepository = new UserRepository(driver)
 
   class Tips(tag: Tag) extends Table[Tip](tag, "tips") with Keyed[Int] {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -28,7 +29,7 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
 
     def * = (id.?, user_id, amount.?) <> ((Tip.apply _).tupled, Tip.unapply)
 
-    def user = foreignKey("USER_FK", user_id, tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
+    def user = foreignKey("USER_FK", user_id, userRepository.tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
   }
 
 }

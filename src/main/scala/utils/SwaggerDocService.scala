@@ -3,12 +3,12 @@ package utils
 import akka.http.scaladsl.model.StatusCodes
 import com.github.swagger.akka._
 import com.github.swagger.akka.model.Info
-import rest.{TipRoutes, UserRoutes}
+import rest.{PollRoutes, TipRoutes, UserRoutes}
 
 import scala.collection.immutable.Set
 
 object SwaggerDocService extends SwaggerHttpService  {
-  override val apiClasses: Set[Class[_]] = Set(classOf[UserRoutes], classOf[TipRoutes])
+  override val apiClasses: Set[Class[_]] = Set(classOf[UserRoutes], classOf[TipRoutes], classOf[PollRoutes])
   override val host = "localhost:8080"
   override val info = Info(version = "2.0")
 

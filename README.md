@@ -36,11 +36,11 @@
 | `POST`        | /giveaways/participate        | participate to a giveaway    | In progess    |
 | `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | In progess    |
 
-## Surveys
+## Polls
 
 | Method        | Path                        | Description             | Status        |
 |:------------- |:--------------------------- |:----------------------- |:------------- |
-| `GET`         | /surveys                    | get all surveys         | In progess    |
-| `POST`        | /surveys                    | new survey              | In progess    |
-| `POST`        | /surveys/participate        | participate to a survey | In progess    |
-| `GET`         | /surveys/{survey-id}/result | get survey's result     | In progess    |
+| `GET`         | /polls                      | get all polls           | Done          |
+| `POST`        | /polls                      | new polls               | Done          |
+| `PATCH`       | /polls/participate          | participate to a polls  | Done          |
+| `GET`         | /polls/{poll-id}/result     | get poll result         | Done          |
