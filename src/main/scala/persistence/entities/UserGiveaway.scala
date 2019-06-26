@@ -46,6 +46,7 @@ class UserGiveawayRepository(override val driver: JdbcProfile) extends Repositor
     } yield (gar, u)
 
     q.filter(_._1.giveaway_id === giveawayId)
+      .filter(_._2.blacklist === 0)
       .sortBy(_ => randomFunction)
       .take(1)
       .result
