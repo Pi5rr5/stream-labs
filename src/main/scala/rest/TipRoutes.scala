@@ -4,7 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{Directives, Route}
 import entities.JsonProtocol
-import persistence.entities.{SimpleTip, Tip}
+import persistence.entities.{SimpleTip, Tip, TipRepository, User}
 import utils.{ActorModule, Configuration, DbModule, PersistenceModule}
 import JsonProtocol._
 import SprayJsonSupport._
@@ -12,6 +12,8 @@ import SprayJsonSupport._
 import scala.util.{Failure, Success}
 import io.swagger.annotations._
 import javax.ws.rs.Path
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
 @Path("/tips")
 @Api(value = "/tips", produces = "application/json")
@@ -19,6 +21,10 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
 
   import modules.executeOperation
   import modules.system.dispatcher
+
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("streamlabs")
+  implicit val profile: JdbcProfile = dbConfig.profile
+  val tipsDal = new TipRepository(profile)
 
   @ApiOperation(value = "Return all Tips", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
@@ -81,6 +87,21 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     }
   }
 
-  val routes: Route = tipsGetRoute ~ tipPostRoute ~ tipDeleteRoute
+  @Path("/users")
+  @ApiOperation(value = "Return donators", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def donatorsGetRoute: Route = path("tips" / "users") {
+    get {
+      onComplete(tipsDal.getDonators()) {
+        case Success(users) => complete(users)
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      }
+    }
+  }
+
+  val routes: Route = tipsGetRoute ~ tipPostRoute ~ tipDeleteRoute ~ donatorsGetRoute
 }
 
