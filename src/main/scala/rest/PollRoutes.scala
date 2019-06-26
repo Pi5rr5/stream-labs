@@ -25,7 +25,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     new ApiResponse(code = 200, message = "Return Polls", response = classOf[Poll]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def pollsGetRoute = path("polls") {
+  def pollsGetRoute: Route = path("polls") {
     get {
       onComplete(modules.pollsDal.findAll()) {
         case Success(polls) => complete(polls)
@@ -44,7 +44,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     new ApiResponse(code = 400, message = "Bad Request"),
     new ApiResponse(code = 200, message = "Entity Created")
   ))
-  def pollsPostRoute = path("polls") {
+  def pollsPostRoute: Route = path("polls") {
     post {
       entity(as[SimplePoll]) { pollToInsert =>
         onComplete(modules.pollsDal.save(Poll(None, pollToInsert.question, pollToInsert.label1, 0, pollToInsert.label2, 0))) {
@@ -65,21 +65,20 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     new ApiResponse(code = 400, message = "Bad Request"),
     new ApiResponse(code = 200, message = "Participation validated")
   ))
-  def pollsPatchRoute = path("polls") {
+  def pollsPatchRoute: Route = path("polls") {
     patch {
       entity(as[PollParticipate]) { pollToUpdate =>
         onComplete(modules.pollsDal.findOne(pollToUpdate.id)) {
           case Success(userOpt) => userOpt match {
-            case Some(poll) => {
+            case Some(poll) =>
               validate(
                 (pollToUpdate.option1 == 0 || pollToUpdate.option2 == 0) && (pollToUpdate.option1 == 1 || pollToUpdate.option2 == 1)
                 , s"{ error: 'Require one and only one response !' }") {
                 onComplete(modules.pollsDal.update(Poll(poll.id, poll.question, poll.label1, poll.option1 + pollToUpdate.option1, poll.label2, poll.option2 + pollToUpdate.option2))) {
-                  case Success(poll) => complete(poll)
+                  case Success(_) => complete(poll)
                   case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
                 }
               }
-            }
             case None => complete(NotFound, s"""{ error: "The poll ${pollToUpdate.id} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
@@ -99,13 +98,13 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     new ApiResponse(code = 404, message = "Poll Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def pollGetResultRoute = path("polls" / IntNumber / "result") { (id) =>
+  def pollGetResultRoute: Route = path("polls" / IntNumber / "result") { id =>
     get {
       validate(id > 0, s"{ error: 'The poll id should be greater than zero !' }") {
         onComplete(modules.pollsDal.findOne(id)) {
           case Success(pollOpt) => pollOpt match {
             case Some(poll) => complete(poll)
-            case None => complete(NotFound, s"""{ error: "The poll ${id} doesn't exist !" }""")
+            case None => complete(NotFound, s"""{ error: "The poll $id doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
