@@ -25,7 +25,7 @@
 | `GET`         | /tips/sum             | sum all tips                 | Done          |
 | `GET`         | /tips/users           | get all the donators         | Done          |
 | `GET`         | /tips/users/{id}/sum  | tips sum of a user           | Done          |
-| `GET`         | /tips/users/sum       | tips sum group by user       | In progress   |
+| `GET`         | /tips/users/sum       | tips sum group by user       | Done          |
 
 ## Giveaways
 

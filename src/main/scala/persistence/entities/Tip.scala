@@ -5,6 +5,8 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.Future
+
 
 case class SimpleTip(user_id: Int, amount: Int)
 
@@ -47,13 +49,10 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
       .result
   }
 
-  def sumOfTipsByUsers(): DBIO[Seq[(Tip, User)]] = {
-      val q = for {
-        (gar, u) <- tableQuery join userRepository.tableQuery on (_.user_id === _.id)
-      } yield (gar, u)
-
-      q.map(x => (x._1, x._2))
-      .result
+  def sumOfTipsByUsers() = {
+    tableQuery.groupBy(_.user_id).map {
+        case (userId, group) => (userId, group.map(_.amount).sum)
+      }.result
   }
 
   def getDonators(): DBIO[Seq[User]] = {
