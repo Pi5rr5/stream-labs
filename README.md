@@ -22,9 +22,9 @@
 | `GET`         | /tips                 | get all tips                 | Done          |
 | `POST`        | /tips                 | new tips                     | Done          |
 | `DELETE`      | /tips/{tips-id}       | cancel tips                  | Done          |
-| `GET`         | /tips/sum             | sum all tips                 | In progress   |
+| `GET`         | /tips/sum             | sum all tips                 | Done          |
 | `GET`         | /tips/users           | get all the donators         | Done          |
-| `GET`         | /tips/users/{id}/sum  | tips sum of a user           | In progress   |
+| `GET`         | /tips/users/{id}/sum  | tips sum of a user           | Done          |
 | `GET`         | /tips/users/sum       | tips sum group by user       | In progress   |
 
 ## Giveaways

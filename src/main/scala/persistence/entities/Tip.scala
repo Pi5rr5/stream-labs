@@ -5,6 +5,7 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
+
 case class SimpleTip(user_id: Int, amount: Int)
 
 case class Tip(override val id: Option[Int], user_id: Option[Int], amount: Option[Int]) extends Entity[Tip, Int] {
@@ -31,6 +32,28 @@ class TipRepository(override val driver: JdbcProfile) extends Repository[Tip, In
     def * = (id.?, user_id, amount.?) <> ((Tip.apply _).tupled, Tip.unapply)
 
     def user = foreignKey("USER_FK", user_id, userRepository.tableQuery)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
+  }
+
+  def sumOfTips(): DBIO[Seq[Int]] = {
+      tableQuery
+        .map(_.amount)
+        .result
+  }
+
+  def sumOfTipsForUser(userId: Int): DBIO[Seq[Int]] = {
+    tableQuery
+      .filter(_.user_id === userId)
+      .map(_.amount)
+      .result
+  }
+
+  def sumOfTipsByUsers(): DBIO[Seq[(Tip, User)]] = {
+      val q = for {
+        (gar, u) <- tableQuery join userRepository.tableQuery on (_.user_id === _.id)
+      } yield (gar, u)
+
+      q.map(x => (x._1, x._2))
+      .result
   }
 
   def getDonators(): DBIO[Seq[User]] = {

@@ -102,6 +102,54 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     }
   }
 
-  val routes: Route = tipsGetRoute ~ tipPostRoute ~ tipDeleteRoute ~ donatorsGetRoute
+  @Path("/sum")
+  @ApiOperation(value = "Return donators", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def sumOfTipsGetRoute: Route = path("tips" / "sum") {
+    get {
+      onComplete(tipsDal.sumOfTips()) {
+        case Success(sum) => complete(Seq(sum.sum))
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      }
+    }
+  }
+
+  @Path("/users/{id}/sum")
+  @ApiOperation(value = "Return sum of tips for a user", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id", value = "Tip Id", required = false, dataType = "int", paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def sumOfTipsForUserGetRoute: Route = path("tips" / "users" / IntNumber / "sum") { id =>
+    get {
+      onComplete(tipsDal.sumOfTipsForUser(id)) {
+        case Success(sum) => complete(Seq(sum.sum))
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      }
+    }
+  }
+
+  @Path("/users/sum")
+  @ApiOperation(value = "Return sum of tips group by users", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 500, message = "Internal server error")
+  ))
+  def sumOfTipsByUserGetRoute: Route = path("tips" / "users" / "sum") {
+    get {
+      onComplete(tipsDal.sumOfTipsByUsers()) {
+        case Success(users) => complete(users)
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      }
+    }
+  }
+
+  val routes: Route = tipsGetRoute ~ tipPostRoute ~ tipDeleteRoute ~ donatorsGetRoute ~ sumOfTipsGetRoute ~ sumOfTipsByUserGetRoute ~ sumOfTipsForUserGetRoute
 }
 
