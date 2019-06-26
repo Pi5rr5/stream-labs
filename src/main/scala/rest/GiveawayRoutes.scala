@@ -95,7 +95,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
         onComplete(modules.usersDal.findOne(userGiveawayToInsert.user_id)) {
           case Success(userOpt) => userOpt match {
             case Some(user) =>
-              validate(user.blacklist == Option(0), s"{ error: 'The user ${user.id} is blacklisted !' }") {
+              validate(user.blacklist == Option(0), s"{ error: 'The user ${userGiveawayToInsert.user_id} is blacklisted !' }") {
                 onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
                   case Success(userGiveaway) => complete(userGiveaway)
                   case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
