@@ -113,14 +113,12 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   ))
   def giveawayGetRoute: Route = path("giveaways" / IntNumber) { id =>
     get {
-      validate(id > 0, s"{ error: 'The giveaway id should be greater than zero !' }") {
-        onComplete(modules.giveawaysDal.findOne(id)) {
-          case Success(giveawayOpt) => giveawayOpt match {
-            case Some(giveaway) => complete(giveaway)
-            case None => complete(NotFound, s"""{ error: "The giveaway $id doesn't exist !" }""")
-          }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+      onComplete(modules.giveawaysDal.findOne(id)) {
+        case Success(giveawayOpt) => giveawayOpt match {
+          case Some(giveaway) => complete(giveaway)
+          case None => complete(NotFound, s"""{ error: "The giveaway $id doesn't exist !" }""")
         }
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
