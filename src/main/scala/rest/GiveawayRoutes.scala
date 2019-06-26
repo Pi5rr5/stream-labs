@@ -92,8 +92,16 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   def userGiveawayPostRoute: Route = path("giveaways" / "participate") {
     post {
       entity(as[SimpleUserGiveaway]) { userGiveawayToInsert =>
-        onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
-          case Success(userGiveaway) => complete(userGiveaway)
+        onComplete(modules.usersDal.findOne(userGiveawayToInsert.user_id)) {
+          case Success(userOpt) => userOpt match {
+            case Some(user) =>
+              validate(user.blacklist == Option(0), s"{ error: 'The user ${user.id} is blacklisted !' }") {
+                onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
+                  case Success(userGiveaway) => complete(userGiveaway)
+                  case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+                }
+              }
+          }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }
@@ -136,11 +144,9 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   ))
   def drawGetRoute: Route = path("giveaways" / IntNumber / "draw") { id =>
     get {
-      validate(id > 0, s"{ error: 'The giveaway id should be greater than zero !' }") {
-        onComplete(userGiveawaysDal.draw(id)) {
-          case Success(user) => complete(user)
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-        }
+      onComplete(userGiveawaysDal.draw(id)) {
+        case Success(user) => complete(user)
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
