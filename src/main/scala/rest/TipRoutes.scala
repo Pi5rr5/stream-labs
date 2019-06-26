@@ -25,7 +25,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     new ApiResponse(code = 200, message = "Return Tips", response = classOf[Tip]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def tipsGetRoute = path("tips") {
+  def tipsGetRoute: Route = path("tips") {
     get {
       onComplete(modules.tipsDal.findAll()) {
         case Success(tips) => complete(tips)
@@ -44,17 +44,16 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     new ApiResponse(code = 400, message = "Bad Request"),
     new ApiResponse(code = 201, message = "Entity Created")
   ))
-  def tipPostRoute = path("tips") {
+  def tipPostRoute: Route = path("tips") {
     post {
       entity(as[SimpleTip]) { tipToInsert =>
         onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
           case Success(userOpt) => userOpt match {
-            case Some(_) => {
+            case Some(_) =>
               onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
                 case Success(tip) => complete(tip)
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
-            }
             case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
           }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
@@ -73,7 +72,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     new ApiResponse(code = 404, message = "Tip Not Found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def tipDeleteRoute = path("tips" / IntNumber) { (id) =>
+  def tipDeleteRoute: Route = path("tips" / IntNumber) { id =>
     delete {
       onComplete(modules.tipsDal.delete(Tip(Option(id), None, None))) {
         case Success(_) => complete(OK)
