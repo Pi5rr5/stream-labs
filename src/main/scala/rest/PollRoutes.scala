@@ -22,7 +22,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
 
   @ApiOperation(value = "Return all polls", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Polls", response = classOf[Seq[Poll]]),
+    new ApiResponse(code = 200, message = "Return Polls", response = classOf[Poll]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def pollsGetRoute = path("polls") {
@@ -47,7 +47,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
   def pollsPostRoute = path("polls") {
     post {
       entity(as[SimplePoll]) { pollToInsert =>
-        onComplete(modules.pollsDal.save(Poll(None, pollToInsert.question, 0, 0))) {
+        onComplete(modules.pollsDal.save(Poll(None, pollToInsert.question, pollToInsert.label1, 0, pollToInsert.label2, 0))) {
           case Success(poll) => complete(poll)
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
@@ -74,7 +74,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
               validate(
                 (pollToUpdate.option1 == 0 || pollToUpdate.option2 == 0) && (pollToUpdate.option1 == 1 || pollToUpdate.option2 == 1)
                 , s"{ error: 'Require one and only one response !' }") {
-                onComplete(modules.pollsDal.update(Poll(poll.id, poll.question, poll.option1 + pollToUpdate.option1, poll.option2 + pollToUpdate.option2))) {
+                onComplete(modules.pollsDal.update(Poll(poll.id, poll.question, poll.label1, poll.option1 + pollToUpdate.option1, poll.label2, poll.option2 + pollToUpdate.option2))) {
                   case Success(poll) => complete(poll)
                   case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
                 }

@@ -5,11 +5,11 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
-case class SimplePoll(question: String)
+case class SimplePoll(question: String, label1: String, label2: String)
 
 case class PollParticipate(id: Int, option1: Int, option2: Int)
 
-case class Poll(override val id: Option[Int], question: String, option1: Int, option2: Int) extends Entity[Poll, Int] {
+case class Poll(override val id: Option[Int], question: String, label1: String, option1: Int, label2: String, option2: Int) extends Entity[Poll, Int] {
   def withId(id: Int): Poll = this.copy(id = Some(id))
 }
 
@@ -26,11 +26,15 @@ class PollRepository(override val driver: JdbcProfile) extends Repository[Poll, 
 
     def question = column[String]("question")
 
+    def label1 = column[String]("label1")
+
     def option1 = column[Int]("option1")
+
+    def label2 = column[String]("label12")
 
     def option2 = column[Int]("option2")
 
-    def * = (id.?, question, option1, option2) <> ((Poll.apply _).tupled, Poll.unapply)
+    def * = (id.?, question, label1, option1, label2, option2) <> ((Poll.apply _).tupled, Poll.unapply)
   }
 
 }
