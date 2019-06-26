@@ -30,11 +30,12 @@
 
 | Method        | Path                          | Description                  | Status        |
 |:------------- |:----------------------------- |:---------------------------- |:------------- |
-| `GET`         | /giveaways                    | get all giveaways            | In progess    |
-| `GET`         | /giveaways/{giveaway-id}      | get giveaways                | In progess    |
-| `POST`        | /giveaways                    | new giveaway                 | In progess    |
-| `POST`        | /giveaways/participate        | participate to a giveaway    | In progess    |
-| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | In progess    |
+| `GET`         | /giveaways                    | get all giveaways            | Done          |
+| `GET`         | /giveaways/{giveaway-id}      | get giveaways                | Done          |
+| `POST`        | /giveaways                    | new giveaway                 | Done          |
+| `POST`        | /giveaways/participate        | participate to a giveaway    | Done          |
+| `DELETE`      | /giveaways/{giveaways-id}     | delete giveaway              | Done          |
+| `GET`         | /giveaways/{giveaway-id}/draw | draw a giveaway              | Done          |
 
 ## Polls
 

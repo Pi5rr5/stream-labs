@@ -1,7 +1,7 @@
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.RouteConcatenation
 import akka.stream.ActorMaterializer
-import rest.{PollRoutes, TipRoutes, UserRoutes}
+import rest.{GiveawayRoutes, PollRoutes, TipRoutes, UserRoutes}
 import utils._
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 
@@ -19,11 +19,14 @@ object Main extends App with RouteConcatenation {
   Await.result(modules.db.run(modules.usersDal.tableQuery.schema.createIfNotExists), Duration.Inf)
   Await.result(modules.db.run(modules.tipsDal.tableQuery.schema.createIfNotExists), Duration.Inf)
   Await.result(modules.db.run(modules.pollsDal.tableQuery.schema.createIfNotExists), Duration.Inf)
+  Await.result(modules.db.run(modules.giveawaysDal.tableQuery.schema.createIfNotExists), Duration.Inf)
+  Await.result(modules.db.run(modules.userGiveawaysDal.tableQuery.schema.createIfNotExists), Duration.Inf)
 
   val bindingFuture = Http().bindAndHandle(
     cors()(new UserRoutes(modules).routes ~
       new TipRoutes(modules).routes ~
       new PollRoutes(modules).routes ~
+      new GiveawayRoutes(modules).routes ~
       SwaggerDocService.assets ~
       SwaggerDocService.routes), "localhost", 8080)
 

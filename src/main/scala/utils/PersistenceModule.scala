@@ -26,6 +26,8 @@ trait DbModule extends Profile {
 trait PersistenceModule {
   val usersDal: Repository[User, Int]
   val tipsDal: Repository[Tip, Int]
+  val giveawaysDal: Repository[Giveaway, Int]
+  val userGiveawaysDal: Repository[UserGiveaway, Int]
   val pollsDal: Repository[Poll, Int]
 }
 
@@ -40,5 +42,7 @@ trait PersistenceModuleImpl extends PersistenceModule with DbModule {
 
   override val usersDal = new UserRepository(profile)
   override val tipsDal = new TipRepository(profile)
+  override val giveawaysDal = new GiveawayRepository(profile)
+  override val userGiveawaysDal = new UserGiveawayRepository(profile)
   override val pollsDal = new PollRepository(profile)
 }
