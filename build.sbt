@@ -21,6 +21,12 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-stream" % akkaV,
     "com.typesafe.akka" %% "akka-stream" % akkaV,
     "ch.megard" %% "akka-http-cors" % "0.4.1",
+    "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
+    "org.specs2" %% "specs2-core" % "2.4.17" % "test",
+    "org.specs2" %% "specs2-mock" % "2.4.17" % "test",
+    "org.scalactic" %% "scalactic" % "3.0.8",
+    "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+    "junit" % "junit" % "4.11" % "test",
 
     "com.github.swagger-akka-http" %% "swagger-akka-http" % "0.11.0",
 
