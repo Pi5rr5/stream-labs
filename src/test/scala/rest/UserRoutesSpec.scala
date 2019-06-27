@@ -95,6 +95,50 @@ class UserRoutesSpec extends AbstractRestTest {
       }
     }
 
+    "blacklist users" in {
+      val testUser = User(Some(1), Some("test"), Some(0), Some(0))
+      val dbAction = DBIOAction.from(Future.successful(Some(testUser)))
+      modules.usersDal.findOne(1) returns dbAction
+      Post("/users/blacklist/1") ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[User].blacklist shouldEqual Some(1)
+      }
+    }
+
+    "unblacklist users" in {
+      val testUser = User(None, Some("test"), Some(0), Some(1))
+      val dbAction = DBIOAction.from(Future.successful(Some(testUser)))
+      modules.usersDal.findOne(1) returns dbAction
+      Post("/users/unblacklist/1") ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[User].blacklist shouldEqual Some(0)
+      }
+    }
+
+    "sub users" in {
+      val testUser = User(None, Some("test"), Some(0), Some(0))
+      val dbAction = DBIOAction.from(Future.successful(Some(testUser)))
+      modules.usersDal.findOne(1) returns dbAction
+      Post("/users/subs/1") ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[User].sub shouldEqual Some(1)
+      }
+    }
+
+    "unsub users" in {
+      val testUser = User(None, Some("test"), Some(1), Some(0))
+      val dbAction = DBIOAction.from(Future.successful(Some(testUser)))
+      modules.usersDal.findOne(1) returns dbAction
+      Post("/users/unsubs/1") ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[User].sub shouldEqual Some(0)
+      }
+    }
+
     "not handle the invalid json" in {
       Post("/users","{\"test\":\"1\"}") ~> users.routes ~> check {
         handled shouldEqual false
