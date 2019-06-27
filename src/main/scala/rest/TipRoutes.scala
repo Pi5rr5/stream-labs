@@ -53,17 +53,18 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   def tipPostRoute: Route = path("tips") {
     post {
       entity(as[SimpleTip]) { tipToInsert =>
-        validate(tipToInsert.amount > 0, s"{ error: 'The amount should be greater than zero !' }")
-        onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(_) =>
-              onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
-                case Success(tip) => complete(Created, tip)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
+        validate(tipToInsert.amount > 0, s"{ error: 'The amount should be greater than zero !' }") {
+          onComplete(modules.usersDal.findOne(tipToInsert.user_id)) {
+            case Success(userOpt) => userOpt match {
+              case Some(_) =>
+                onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
+                  case Success(tip) => complete(Created, tip)
+                  case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+                }
+              case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
+            }
+            case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
           }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }
     }
@@ -104,9 +105,9 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   }
 
   @Path("/sum")
-  @ApiOperation(value = "Return donators", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
+  @ApiOperation(value = "Return sum of all tips", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 200, message = "Return sum of all tips"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def sumOfTipsGetRoute: Route = path("tips" / "sum") {
@@ -124,13 +125,21 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
     new ApiImplicitParam(name = "id", value = "Tip Id", required = false, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 200, message = "Return sum of tips for a user"),
+    new ApiResponse(code = 404, message = "Not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def sumOfTipsForUserGetRoute: Route = path("tips" / "users" / IntNumber / "sum") { id =>
     get {
-      onComplete(tipsDal.sumOfTipsForUser(id)) {
-        case Success(sum) => complete(Seq(sum.sum))
+      onComplete(modules.usersDal.findOne(id)) {
+        case Success(userOpt) => userOpt match {
+          case Some(_) =>
+            onComplete(tipsDal.sumOfTipsForUser(id)) {
+              case Success(sum) => complete(Seq(sum.sum))
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"""{ error: "The user $id doesn't exist !" }""")
+        }
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
@@ -139,7 +148,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   @Path("/users/sum")
   @ApiOperation(value = "Return sum of tips group by users", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
   @ApiResponses(Array(
-    new ApiResponse(code = 200, message = "Return Users", response = classOf[User]),
+    new ApiResponse(code = 200, message = "Return sum of tips group by users"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def sumOfTipsByUserGetRoute: Route = path("tips" / "users" / "sum") {
