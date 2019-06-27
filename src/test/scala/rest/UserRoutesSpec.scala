@@ -2,7 +2,7 @@ package rest
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import entities.JsonProtocol
-import persistence.entities.{User, SimpleUser}
+import persistence.entities.{SimpleUser, User, UserRepository}
 import akka.http.scaladsl.model.StatusCodes._
 import JsonProtocol._
 import SprayJsonSupport._
@@ -15,7 +15,6 @@ class UserRoutesSpec extends AbstractRestTest {
   def actorRefFactory = system
   val modules = new Modules {}
   val users = new UserRoutes(modules)
-
 
   "User Routes" should {
 
@@ -58,7 +57,7 @@ class UserRoutesSpec extends AbstractRestTest {
       }
     }
 
-    "create a user with the in the body" in {
+    "create a user with the data in the body" in {
       val testUser = User(None, Some("test"), Some(0), Some(0))
       val dbAction = DBIOAction.from(Future.successful(testUser))
       modules.usersDal.save(testUser) returns dbAction
@@ -66,6 +65,33 @@ class UserRoutesSpec extends AbstractRestTest {
         handled shouldEqual true
         status shouldEqual Created
         responseAs[Option[User]].isEmpty shouldEqual false
+        responseAs[User].pseudo shouldEqual Some("test")
+        responseAs[User].sub shouldEqual Some(0)
+        responseAs[User].blacklist shouldEqual Some(0)
+      }
+    }
+
+    "patch a user with the data in the body" in {
+      val testUser = User(Some(1), Some("test"), Some(0), Some(0))
+      val dbAction = DBIOAction.from(Future.successful(testUser))
+      modules.usersDal.save(testUser) returns dbAction
+      Patch("/users/1", SimpleUser("test2", 0, 0)) ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[Option[User]].isEmpty shouldEqual false
+        responseAs[User].pseudo shouldEqual Some("test2")
+      }
+    }
+
+    "return all blacklisted users" in {
+      val testUser1 = User(None, Some("test"), Some(0), Some(1))
+      val testUser2 = User(None, Some("test"), Some(0), Some(0))
+      val dbAction = DBIOAction.from(Future.successful(Seq(testUser1, testUser2)))
+      modules.usersDal.findAll() returns dbAction
+      Get("/users/blacklist") ~> users.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[Seq[User]].isEmpty shouldEqual false
       }
     }
 

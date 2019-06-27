@@ -7,7 +7,7 @@ import org.specs2.mock.Mockito
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.{ActorModule, ConfigurationModuleImpl, DbModule, PersistenceModule}
-import persistence.entities.{User, Tip, Giveaway, UserGiveaway, Poll}
+import persistence.entities._
 import com.typesafe.config.{Config, ConfigFactory}
 
 
