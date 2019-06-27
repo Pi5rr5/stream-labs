@@ -1,9 +1,7 @@
 package rest
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.byteslounge.slickrepo.repository.Repository
 import org.scalatest.{Matchers, WordSpec}
-import org.specs2.mock.Mockito
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.{ActorModule, ConfigurationModuleImpl, DbModule, PersistenceModule}
@@ -11,7 +9,7 @@ import persistence.entities._
 import com.typesafe.config.{Config, ConfigFactory}
 
 
-class AbstractRestTest extends WordSpec with Matchers with ScalatestRouteTest with Mockito {
+class AbstractRestTest extends WordSpec with Matchers with ScalatestRouteTest  {
 
   trait Modules extends ConfigurationModuleImpl with ActorModule with PersistenceModule with DbModule {
     val system = AbstractRestTest.this.system
@@ -20,11 +18,11 @@ class AbstractRestTest extends WordSpec with Matchers with ScalatestRouteTest wi
     override implicit val profile: JdbcProfile = dbConfig.profile
     override implicit val db: JdbcProfile#Backend#Database = dbConfig.db
 
-    override val usersDal = mock[Repository[User, Int]]
-    override val tipsDal = mock[Repository[Tip, Int]]
-    override val giveawaysDal = mock[Repository[Giveaway, Int]]
-    override val userGiveawaysDal = mock[Repository[UserGiveaway, Int]]
-    override val pollsDal = mock[Repository[Poll, Int]]
+    override val usersDal = new UserRepository(profile)
+    override val tipsDal = new TipRepository(profile)
+    override val giveawaysDal = new GiveawayRepository(profile)
+    override val userGiveawaysDal = new UserGiveawayRepository(profile)
+    override val pollsDal = new PollRepository(profile)
   }
 
   def getConfig: Config = ConfigFactory.empty()
