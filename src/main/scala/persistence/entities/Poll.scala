@@ -36,5 +36,4 @@ class PollRepository(override val driver: JdbcProfile) extends Repository[Poll, 
 
     def * = (id.?, question, label1, option1, label2, option2) <> ((Poll.apply _).tupled, Poll.unapply)
   }
-
 }

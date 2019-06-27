@@ -4,7 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{Directives, Route}
 import entities.JsonProtocol
-import persistence.entities.{SimpleUser, User, UserId}
+import persistence.entities.{SimpleUser, User, UserRepository, UserId}
 import utils.{ActorModule, Configuration, DbModule, PersistenceModule}
 import JsonProtocol._
 import SprayJsonSupport._
@@ -12,6 +12,8 @@ import SprayJsonSupport._
 import scala.util.{Failure, Success}
 import io.swagger.annotations._
 import javax.ws.rs.Path
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
 @Path("/users")
 @Api(value = "/users", produces = "application/json")
@@ -19,6 +21,10 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
 
   import modules.executeOperation
   import modules.system.dispatcher
+
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("streamlabs")
+  implicit val profile: JdbcProfile = dbConfig.profile
+  val userDal = new UserRepository(profile)
 
   @ApiOperation(value = "Return all Users", notes = "", nickname = "", httpMethod = "GET")
   @ApiResponses(Array(
@@ -63,14 +69,23 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
   ))
   @ApiResponses(Array(
     new ApiResponse(code = 400, message = "Bad Request"),
+    new ApiResponse(code = 409, message = "Pseudo already taken"),
     new ApiResponse(code = 201, message = "Created", response = classOf[User]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
   def userPostRoute: Route = path("users") {
     post {
       entity(as[SimpleUser]) { userToInsert =>
-        onComplete(modules.usersDal.save(User(None, Option(userToInsert.pseudo), Option(userToInsert.sub), Option(userToInsert.blacklist)))) {
-          case Success(user) => complete(Created, user)
+        onComplete(userDal.exists(userToInsert.pseudo)) {
+          case Success(existOpt) => if (!existOpt) {
+            onComplete(modules.usersDal.save(User(None, Option(userToInsert.pseudo), Option(userToInsert.sub), Option(userToInsert.blacklist)))) {
+              case Success(user) => complete(Created, user)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          }
+          else {
+            complete(Conflict, s"{ error: 'Pseudo already taken' }")
+          }
           case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
         }
       }

@@ -87,6 +87,7 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
   @ApiResponses(Array(
     new ApiResponse(code = 500, message = "Internal server error"),
     new ApiResponse(code = 400, message = "Bad Request"),
+    new ApiResponse(code = 409, message = "User already participated"),
     new ApiResponse(code = 200, message = "Participated to giveway")
   ))
   def userGiveawayPostRoute: Route = path("giveaways" / "participate") {
@@ -97,14 +98,24 @@ class GiveawayRoutes(modules: Configuration with PersistenceModule with DbModule
             case Some(user) =>
               onComplete(modules.giveawaysDal.findOne(userGiveawayToInsert.giveaway_id)) {
                 case Success(giveawayOpt) => giveawayOpt match {
-                  case Some(_) => validate(user.blacklist == Option(0), s"{ error: 'The user ${userGiveawayToInsert.user_id} is blacklisted !' }") {
-                    onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
-                      case Success(userGiveaway) => complete(userGiveaway)
+                  case Some(_) =>
+                    onComplete(userGiveawaysDal.exists(userGiveawayToInsert.giveaway_id, userGiveawayToInsert.user_id)) {
+                      case Success(existOpt) => if (!existOpt) {
+                        validate(user.blacklist == Option(0), s"{ error: 'The user ${userGiveawayToInsert.user_id} is blacklisted !' }") {
+                          onComplete(modules.userGiveawaysDal.save(UserGiveaway(None, Option(userGiveawayToInsert.giveaway_id), Option(userGiveawayToInsert.user_id)))) {
+                            case Success(userGiveaway) => complete(userGiveaway)
+                            case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+                          }
+                        }
+                      }
+                      else {
+                        complete(Conflict, s"{ error: 'The user has already participate' }")
+                      }
                       case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
                     }
-                  }
                   case None => complete(NotFound, s"""{ error: "The giveaway ${userGiveawayToInsert.giveaway_id} doesn't exist !" }""")
                 }
+                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             case None => complete(NotFound, s"""{ error: "The user ${userGiveawayToInsert.user_id} doesn't exist !" }""")
           }

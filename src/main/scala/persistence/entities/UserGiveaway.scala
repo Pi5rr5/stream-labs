@@ -51,6 +51,10 @@ class UserGiveawayRepository(override val driver: JdbcProfile) extends Repositor
       .take(1)
       .result
   }
+
+  def exists(giveawayId: Int, userId: Int) = {
+    tableQuery.filter(gar => gar.giveaway_id === giveawayId && gar.user_id === userId).exists.result
+  }
 }
 
 

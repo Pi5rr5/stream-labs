@@ -33,4 +33,7 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
     def * = (id.?, pseudo.?, sub.?, blacklist.?) <> ((User.apply _).tupled, User.unapply)
   }
 
+  def exists(userPseudo: String) = {
+    tableQuery.filter(user => user.pseudo.toLowerCase === userPseudo.toLowerCase).exists.result
+  }
 }

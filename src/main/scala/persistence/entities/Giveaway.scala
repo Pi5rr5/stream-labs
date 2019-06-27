@@ -5,6 +5,8 @@ import com.byteslounge.slickrepo.repository.Repository
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.Future
+
 case class SimpleGiveaway(description: String)
 
 case class Giveaway(override val id: Option[Int], description: Option[String]) extends Entity[Giveaway, Int] {
