@@ -95,6 +95,15 @@ class PollRoutesSpec extends AbstractRestTest with BeforeAndAfterAll {
         responseAs[Poll].option2 shouldEqual 1
       }
     }
-  }
 
+    "Poll result" in {
+      Get("/polls/1/result") ~> polls.routes ~> check {
+        handled shouldEqual true
+        status shouldEqual OK
+        responseAs[Option[Poll]].isEmpty shouldEqual false
+        responseAs[Poll].option1 shouldEqual 0
+        responseAs[Poll].option2 shouldEqual 1
+      }
+    }
+  }
 }
