@@ -148,60 +148,54 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
     }
   }
 
-  @Path("/blacklist")
-  @ApiOperation(value = "Blacklist user", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
+  @Path("/blacklist/{id}")
+  @ApiOperation(value = "Blacklist user", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "User id Object", required = true,
-      dataType = "persistence.entities.UserId", paramType = "body")
+    new ApiImplicitParam(name = "id", value = "User Id", required = true, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Blacklisted", response = classOf[User]),
-    new ApiResponse(code = 404, message = "Not found"),
+    new ApiResponse(code = 200, message = "Blacklisted", response = classOf[User]),
+    new ApiResponse(code = 404, message = "User not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def usersBlacklistRoute: Route = path("users" / "blacklist") {
-    patch {
-      entity(as[UserId]) { userToUpdate =>
-        onComplete(modules.usersDal.findOne(userToUpdate.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(user) =>
-              onComplete(modules.usersDal.update(User(user.id, user.pseudo, user.sub, Option(1)))) {
-                case Success(_) => complete(user)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate.user_id} doesn't exist !' }")
-          }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+  def usersBlacklistRoute: Route = path("users" / "blacklist" / IntNumber) { user_id =>
+    post {
+      onComplete(modules.usersDal.findOne(user_id)) {
+        case Success(userOpt) => userOpt match {
+          case Some(user) =>
+            onComplete(modules.usersDal.update(User(user.id, user.pseudo, user.sub, Option(1)))) {
+              case Success(res) => complete(res)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"{ error: 'The user ${user_id} doesn't exist !' }")
         }
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
 
-  @Path("/unblacklist")
-  @ApiOperation(value = "Unblacklist user", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
+  @Path("/unblacklist/{id}")
+  @ApiOperation(value = "Unblacklist user", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "User id Object", required = true,
-      dataType = "persistence.entities.UserId", paramType = "body")
+    new ApiImplicitParam(name = "id", value = "User Id", required = true, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Unblacklisted", response = classOf[User]),
-    new ApiResponse(code = 404, message = "Not found"),
+    new ApiResponse(code = 200, message = "Unblacklisted", response = classOf[User]),
+    new ApiResponse(code = 404, message = "User not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def usersUnblacklistRoute: Route = path("users" / "unblacklist") {
-    patch {
-      entity(as[UserId]) { userToUpdate =>
-        onComplete(modules.usersDal.findOne(userToUpdate.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(user) =>
-              onComplete(modules.usersDal.update(User(user.id, user.pseudo, user.sub, Option(0)))) {
-                case Success(_) => complete(user)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            case None => complete(NotFound, s"{ error: 'The user ${userToUpdate.user_id}  doesn't exist !' }")
-          }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+  def usersUnblacklistRoute: Route = path("users" / "unblacklist" / IntNumber) { user_id =>
+    post {
+      onComplete(modules.usersDal.findOne(user_id)) {
+        case Success(userOpt) => userOpt match {
+          case Some(user) =>
+            onComplete(modules.usersDal.update(User(user.id, user.pseudo, user.sub, Option(0)))) {
+              case Success(res) => complete(res)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"{ error: 'The user ${user_id}  doesn't exist !' }")
         }
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
@@ -221,60 +215,54 @@ class UserRoutes(modules: Configuration with PersistenceModule with DbModule wit
     }
   }
 
-  @Path("/subs")
-  @ApiOperation(value = "sub user", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
+  @Path("/subs/{id}")
+  @ApiOperation(value = "sub user by id", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "User id Object", required = true,
-      dataType = "persistence.entities.UserId", paramType = "body")
+    new ApiImplicitParam(name = "id", value = "User Id", required = true, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Subscribed", response = classOf[User]),
+    new ApiResponse(code = 200, message = "Subscribed", response = classOf[User]),
     new ApiResponse(code = 404, message = "Not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def userPatchSubRoute: Route = path("users" / "subs") {
-    patch {
-      entity(as[UserId]) { userToUpdate =>
-        onComplete(modules.usersDal.findOne(userToUpdate.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(user) =>
-              onComplete(modules.usersDal.update(User(user.id, user.pseudo, Option(1), user.blacklist))) {
-                case Success(_) => complete(user)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate.user_id} doesn't exist !" }""")
-          }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+  def userPatchSubRoute: Route = path("users" / "subs" / IntNumber) { user_id =>
+    post {
+      onComplete(modules.usersDal.findOne(user_id)) {
+        case Success(userOpt) => userOpt match {
+          case Some(user) =>
+            onComplete(modules.usersDal.update(User(user.id, user.pseudo, Option(1), user.blacklist))) {
+              case Success(res) => complete(res)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"""{ error: "The user ${user_id} doesn't exist !" }""")
         }
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
 
-  @Path("/unsubs")
-  @ApiOperation(value = "unsubs user", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
+  @Path("/unsubs/{id}")
+  @ApiOperation(value = "unsubs user", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "User id Object", required = true,
-      dataType = "persistence.entities.UserId", paramType = "body")
+    new ApiImplicitParam(name = "id", value = "User Id", required = true, dataType = "int", paramType = "path")
   ))
   @ApiResponses(Array(
-    new ApiResponse(code = 201, message = "Unsubscribed", response = classOf[User]),
+    new ApiResponse(code = 200, message = "Unsubscribed", response = classOf[User]),
     new ApiResponse(code = 404, message = "Not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def userPatchUnsubRoute: Route = path("users" / "unsubs") {
-    patch {
-      entity(as[UserId]) { userToUpdate =>
-        onComplete(modules.usersDal.findOne(userToUpdate.user_id)) {
-          case Success(userOpt) => userOpt match {
-            case Some(user) =>
-              onComplete(modules.usersDal.update(User(user.id, user.pseudo, Option(0), user.blacklist))) {
-                case Success(_) => complete(user)
-                case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
-              }
-            case None => complete(NotFound, s"""{ error: "The user ${userToUpdate.user_id} doesn't exist !" }""")
-          }
-          case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+  def userPatchUnsubRoute: Route = path("users" / "unsubs" / IntNumber) { user_id =>
+    post {
+      onComplete(modules.usersDal.findOne(user_id)) {
+        case Success(userOpt) => userOpt match {
+          case Some(user) =>
+            onComplete(modules.usersDal.update(User(user.id, user.pseudo, Option(0), user.blacklist))) {
+              case Success(res) => complete(res)
+              case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
+            }
+          case None => complete(NotFound, s"""{ error: "The user ${user_id} doesn't exist !" }""")
         }
+        case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
   }
