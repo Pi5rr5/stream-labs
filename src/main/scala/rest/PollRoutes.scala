@@ -55,6 +55,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     }
   }
 
+  @Path("/participate")
   @ApiOperation(value = "Participate to a poll", notes = "", nickname = "", httpMethod = "PATCH", produces = "application/json")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "body", value = "Participation poll Object", required = true,
@@ -66,7 +67,7 @@ class PollRoutes(modules: Configuration with PersistenceModule with DbModule wit
     new ApiResponse(code = 404, message = "Not Found"),
     new ApiResponse(code = 200, message = "Participation validated")
   ))
-  def pollsPatchRoute: Route = path("polls") {
+  def pollsPatchRoute: Route = path("polls" / "participate") {
     patch {
       entity(as[PollParticipate]) { pollToUpdate =>
         onComplete(modules.pollsDal.findOne(pollToUpdate.id)) {
