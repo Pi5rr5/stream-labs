@@ -57,7 +57,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
           case Success(userOpt) => userOpt match {
             case Some(_) =>
               onComplete(modules.tipsDal.save(Tip(None, Option(tipToInsert.user_id), Option(tipToInsert.amount)))) {
-                case Success(tip) => complete(tip)
+                case Success(tip) => complete(Created, tip)
                 case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
               }
             case None => complete(NotFound, s"""{ error: "The user ${tipToInsert.user_id} doesn't exist !" }""")
@@ -81,7 +81,7 @@ class TipRoutes(modules: Configuration with PersistenceModule with DbModule with
   def tipDeleteRoute: Route = path("tips" / IntNumber) { id =>
     delete {
       onComplete(modules.tipsDal.delete(Tip(Option(id), None, None))) {
-        case Success(_) => complete(OK)
+        case Success(_) => complete(NoContent)
         case Failure(ex) => complete(InternalServerError, s"{ error: 'An error occurred: ${ex.getMessage}' }")
       }
     }
